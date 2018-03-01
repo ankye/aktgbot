@@ -1,0 +1,16 @@
+hi - say hi to bot
+btc - btc price
+bch - bch price
+ltc - ltc price
+eth - eth price
+bchbtc - bchbtc price
+ltcbtc - ltcbtc price
+ethbtc - ethbtc price
+bitstamp - show all bitstamp price
+poloniex - show all poloniex price
+bittrex - show all bittrex price
+bitfinex - show all bitfinex price
+alertbtc - Subscription 1hour btc 
+alertbch - Subscription 1hour bch  
+dalertbtc - unSubscription 1hour btc
+dalertbch - unSubscription 1hour bch
