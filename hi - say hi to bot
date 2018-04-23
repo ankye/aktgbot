@@ -10,6 +10,7 @@ bitstamp - show all bitstamp price
 poloniex - show all poloniex price
 bittrex - show all bittrex price
 bitfinex - show all bitfinex price
+binance - show all binance price
 alertbtc - Subscription 1hour btc 
 alertbch - Subscription 1hour bch  
 dalertbtc - unSubscription 1hour btc
