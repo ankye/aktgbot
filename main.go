@@ -634,7 +634,7 @@ func main() {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
 				out := Output2(last1, last2, last3, last4, last5, last6, last7)
-				msg := fmt.Sprintf("Bitfinex: \n%s\n", out)
+				msg := fmt.Sprintf("Binance: \n%s\n", out)
 				bot.SendMessage(message.Chat, msg, nil)
 			}
 		} else {
