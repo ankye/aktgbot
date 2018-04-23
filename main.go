@@ -30,6 +30,7 @@ const (
 	POLONIEX = "Poloniex"
 	BITTREX  = "Bittrex"
 	BITFINEX = "Bitfinex"
+	BINANCE  = "Binance"
 )
 
 //Market market struct
@@ -273,6 +274,28 @@ func bitstamp(market string, trader string) *Market {
 
 }
 
+//Binance 币安价格查询
+func Binance(market string, trader string) *Market {
+	resp, err := http.Get("https://api.binance.com/api/v1/ticker/24hr?symbol=" + market)
+	if err != nil {
+		// handle error
+		return nil
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+		return nil
+	}
+	last := gjson.GetBytes(body, "lastPrice").Float()
+
+	open := gjson.GetBytes(body, "openPrice").Float()
+
+	percentChange := (last - open) / open
+
+	return NewMarket(BINANCE, trader, last, percentChange)
+}
+
 var tgSubscription map[string]*Subscription
 var subscriptionFile string
 var bot *tb.Bot
@@ -344,14 +367,15 @@ func doBTC(chat *tb.Chat) {
 	last2 := account.BTC
 	last3 := bittrex("USDT-BTC", BTC)
 	last4 := bitfinex("tBTCUSD", BTC)
-	if HasNull(last1, last2, last3, last4) {
+	last5 := Binance("BTCUSDT", BTC)
+	if HasNull(last1, last2, last3, last4, last5) {
 		bot.SendMessage(chat, "查询失败，请重试", nil)
 	} else {
-		min := Minimum(last1, last2, last3, last4)
-		max := Maximum(last1, last2, last3, last4)
+		min := Minimum(last1, last2, last3, last4, last5)
+		max := Maximum(last1, last2, last3, last4, last5)
 		agiotage := max.Last - min.Last
 		per := agiotage / min.Last * 100
-		out := Output(last1, last2, last3, last4)
+		out := Output(last1, last2, last3, last4, last5)
 		msg := fmt.Sprintf("BTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 		bot.SendMessage(chat, msg, nil)
 	}
@@ -363,20 +387,22 @@ func doBCC(chat *tb.Chat) {
 	last2 := bittrex("USDT-BCC", BCC)
 	last3 := bitfinex("tBCHUSD", BCC)
 	last4 := bitstamp("bchusd", BCC)
-	if HasNull(last1, last2, last3, last4) {
+	last5 := Binance("BCCUSDT", BCC)
+	if HasNull(last1, last2, last3, last4, last5) {
 		bot.SendMessage(chat, "查询失败，请重试", nil)
 	} else {
-		min := Minimum(last1, last2, last3, last4)
-		max := Maximum(last1, last2, last3, last4)
+		min := Minimum(last1, last2, last3, last4, last5)
+		max := Maximum(last1, last2, last3, last4, last5)
 		agiotage := max.Last - min.Last
 		per := agiotage / min.Last * 100
-		out := Output(last1, last2, last3, last4)
+		out := Output(last1, last2, last3, last4, last5)
 		msg := fmt.Sprintf("BCH \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 		bot.SendMessage(chat, msg, nil)
 	}
 }
 
 func main() {
+
 	subscriptionFile = "config/subscription.gob"
 	loadSubscription(subscriptionFile)
 	go alert()
@@ -445,15 +471,15 @@ func main() {
 			last2 := account.LTC
 			last3 := bittrex("USDT-LTC", LTC)
 			last4 := bitfinex("tLTCUSD", LTC)
-
-			if HasNull(last1, last2, last3, last4) {
+			last5 := Binance("LTCUSDT", LTC)
+			if HasNull(last1, last2, last3, last4, last5) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
-				min := Minimum(last1, last2, last3, last4)
-				max := Maximum(last1, last2, last3, last4)
+				min := Minimum(last1, last2, last3, last4, last5)
+				max := Maximum(last1, last2, last3, last4, last5)
 				agiotage := max.Last - min.Last
 				per := agiotage / min.Last * 100
-				out := Output(last1, last2, last3, last4)
+				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("LTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
 			}
@@ -464,14 +490,15 @@ func main() {
 			last2 := account.ETH
 			last3 := bittrex("USDT-ETH", ETH)
 			last4 := bitfinex("tETHUSD", ETH)
-			if HasNull(last1, last2, last3, last4) {
+			last5 := Binance("ETHUSDT", ETH)
+			if HasNull(last1, last2, last3, last4, last5) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
-				min := Minimum(last1, last2, last3, last4)
-				max := Maximum(last1, last2, last3, last4)
+				min := Minimum(last1, last2, last3, last4, last5)
+				max := Maximum(last1, last2, last3, last4, last5)
 				agiotage := max.Last - min.Last
 				per := agiotage / min.Last * 100
-				out := Output(last1, last2, last3, last4)
+				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("ETH \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
 			}
@@ -483,14 +510,16 @@ func main() {
 			last2 := bittrex("BTC-BCC", BTCBCC)
 			last3 := bitfinex("tBCHBTC", BTCBCC)
 			last4 := bitstamp("bchbtc", BTCBCC)
-			if HasNull(last1, last2, last3, last4) {
+			last5 := Binance("BCCBTC", BTCBCC)
+
+			if HasNull(last1, last2, last3, last4, last5) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
-				min := Minimum(last1, last2, last3, last4)
-				max := Maximum(last1, last2, last3, last4)
+				min := Minimum(last1, last2, last3, last4, last5)
+				max := Maximum(last1, last2, last3, last4, last5)
 				agiotage := max.Last - min.Last
 				per := agiotage / min.Last * 100
-				out := Output(last1, last2, last3, last4)
+				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("BCHBTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
 			}
@@ -501,14 +530,15 @@ func main() {
 			last2 := account.BTCLTC
 			last3 := bittrex("BTC-LTC", BTCLTC)
 			last4 := bitfinex("tLTCBTC", BTCLTC)
-			if HasNull(last1, last2, last3, last4) {
+			last5 := Binance("LTCBTC", BTCLTC)
+			if HasNull(last1, last2, last3, last4, last5) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
-				min := Minimum(last1, last2, last3, last4)
-				max := Maximum(last1, last2, last3, last4)
+				min := Minimum(last1, last2, last3, last4, last5)
+				max := Maximum(last1, last2, last3, last4, last5)
 				agiotage := max.Last - min.Last
 				per := agiotage / min.Last * 100
-				out := Output(last1, last2, last3, last4)
+				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("LTCBTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
 			}
@@ -519,14 +549,15 @@ func main() {
 			last2 := account.BTCETH
 			last3 := bittrex("BTC-ETH", BTCETH)
 			last4 := bitfinex("tETHBTC", BTCETH)
-			if HasNull(last1, last2, last3, last4) {
+			last5 := Binance("ETHBTC", BTCETH)
+			if HasNull(last1, last2, last3, last4, last5) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
-				min := Minimum(last1, last2, last3, last4)
-				max := Maximum(last1, last2, last3, last4)
+				min := Minimum(last1, last2, last3, last4, last5)
+				max := Maximum(last1, last2, last3, last4, last5)
 				agiotage := max.Last - min.Last
 				per := agiotage / min.Last * 100
-				out := Output(last1, last2, last3, last4)
+				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("ETHBTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
 			}
@@ -583,6 +614,22 @@ func main() {
 			last5 := bitfinex("tBCHBTC", BTCBCC)
 			last6 := bitfinex("tLTCBTC", BTCLTC)
 			last7 := bitfinex("tETHBTC", BTCETH)
+			if HasNull(last1, last2, last3, last4, last5, last6, last7) {
+				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
+			} else {
+				out := Output2(last1, last2, last3, last4, last5, last6, last7)
+				msg := fmt.Sprintf("Bitfinex: \n%s\n", out)
+				bot.SendMessage(message.Chat, msg, nil)
+			}
+		} else if arr[0] == "/binance" {
+
+			last1 := Binance("BTCUSDT", BTC)
+			last2 := Binance("BCCUSDT", BCC)
+			last3 := Binance("LTCUSDT", LTC)
+			last4 := Binance("ETHUSDT", ETH)
+			last5 := Binance("BCCBTC", BTCBCC)
+			last6 := Binance("LTCBTC", BTCLTC)
+			last7 := Binance("ETHBTC", BTCETH)
 			if HasNull(last1, last2, last3, last4, last5, last6, last7) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
