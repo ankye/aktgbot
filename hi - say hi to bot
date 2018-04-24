@@ -15,3 +15,5 @@ alertbtc - Subscription 1hour btc
 alertbch - Subscription 1hour bch  
 dalertbtc - unSubscription 1hour btc
 dalertbch - unSubscription 1hour bch
+alertrange78 - Subscription range78
+dalertrange78 - unSubscription range78

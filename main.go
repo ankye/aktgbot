@@ -56,6 +56,7 @@ type Account struct {
 type Subscription struct {
 	Chat     *tb.Chat
 	Trader   string
+	Type     int
 	Duration int
 	LastTime int
 }
@@ -71,10 +72,11 @@ func LocalSecond() int {
 }
 
 //NewSubscription create NewSubscription
-func NewSubscription(trader string, duration int) *Subscription {
+func NewSubscription(trader string, t int, duration int) *Subscription {
 	return &Subscription{
 		Chat:     nil,
 		Trader:   trader,
+		Type:     t,
 		Duration: duration,
 		LastTime: LocalSecond(),
 	}
@@ -299,6 +301,8 @@ func Binance(market string, trader string) *Market {
 var tgSubscription map[string]*Subscription
 var subscriptionFile string
 var bot *tb.Bot
+var bchAlertValue float64
+var btcAlertValue float64
 
 func saveSubscription() {
 
@@ -338,13 +342,29 @@ func alert() {
 				if sub.Chat != nil {
 					str, _ := json.Marshal(sub.Chat)
 					_ = json.Unmarshal(str, chat)
-					if sub.Trader == BTC {
-						//fmt.Printf("alert btc price to  %d", sub.Chat.ID)
-						doBTC(chat)
-					} else if sub.Trader == BCC {
-						//fmt.Printf("alert bcc price to  %d", sub.Chat.ID)
-						doBCC(chat)
+					if sub.Type == 2 {
+						btcm := bitstamp("btcusd", BTC)
+						bchm := bitstamp("bchusd", BCC)
+						btcPercentChange := (btcAlertValue - btcm.Last) / btcAlertValue
+						bchPercentChange := (bchAlertValue - bchm.Last) / bchAlertValue
+						if btcPercentChange >= 0.07 || btcPercentChange <= -0.08 {
+							btcAlertValue = btcm.Last
+							doBTC(chat)
+						}
+						if bchPercentChange >= 0.07 || bchPercentChange <= -0.08 {
+							bchAlertValue = btcm.Last
+							doBCC(chat)
+						}
 
+					} else {
+						if sub.Trader == BTC {
+							//fmt.Printf("alert btc price to  %d", sub.Chat.ID)
+							doBTC(chat)
+						} else if sub.Trader == BCC {
+							//fmt.Printf("alert bcc price to  %d", sub.Chat.ID)
+							doBCC(chat)
+
+						}
 					}
 				}
 
@@ -424,7 +444,7 @@ func main() {
 			chat := new(tb.Chat)
 			_ = json.Unmarshal(str, chat)
 
-			ns := NewSubscription(BTC, 3600)
+			ns := NewSubscription(BTC, 1, 3600)
 			ns.Chat = chat
 			tgSubscription[key] = ns
 			saveSubscription()
@@ -434,11 +454,26 @@ func main() {
 			str, _ := json.Marshal(message.Chat)
 			chat := new(tb.Chat)
 			_ = json.Unmarshal(str, chat)
-			ns := NewSubscription(BCC, 3600)
+			ns := NewSubscription(BCC, 1, 3600)
 			ns.Chat = chat
 			tgSubscription[key] = ns
 			saveSubscription()
 			bot.SendMessage(message.Chat, "订阅bch提醒成功,间隔1小时", nil)
+		} else if arr[0] == "/alertrange78" {
+			key := fmt.Sprintf("%s%s-%d", BTC, BCC, message.Chat.ID)
+			str, _ := json.Marshal(message.Chat)
+			chat := new(tb.Chat)
+			_ = json.Unmarshal(str, chat)
+			ns := NewSubscription(BCC, 2, 600)
+			ns.Chat = chat
+			tgSubscription[key] = ns
+			saveSubscription()
+			btcm := bitstamp("btcusd", BTC)
+			bchm := bitstamp("bchusd", BCC)
+			btcAlertValue = btcm.Last
+			bchAlertValue = bchm.Last
+
+			bot.SendMessage(message.Chat, "订阅BCH,BTC行情大波动提醒成功，七上八下模式开启", nil)
 		} else if arr[0] == "/dalertbtc" {
 			key := fmt.Sprintf("%s-%d", BTC, message.Chat.ID)
 
@@ -450,6 +485,14 @@ func main() {
 			delete(tgSubscription, key)
 			saveSubscription()
 			bot.SendMessage(message.Chat, "取消订阅bch成功,不再提醒", nil)
+
+		} else if arr[0] == "/dalertrange78" {
+			key := fmt.Sprintf("%s%s-%d", BTC, BCC, message.Chat.ID)
+			delete(tgSubscription, key)
+			saveSubscription()
+			bchAlertValue = 0
+			btcAlertValue = 0
+			bot.SendMessage(message.Chat, "取消订阅BCH,BTC行情大波动提醒成功，七上八下模式关闭", nil)
 
 		} else if arr[0] == "/hi" {
 			bot.SendMessage(message.Chat, "Hello, "+message.Sender.FirstName+" ! \ndonated bch adress : 32LSbGXhDjUie578wGFPVUhK2M7boNcTsB", nil)
