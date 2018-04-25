@@ -345,17 +345,38 @@ func alert() {
 					if sub.Type == 2 {
 						btcm := bitstamp("btcusd", BTC)
 						bchm := bitstamp("bchusd", BCC)
-						btcPercentChange := (btcAlertValue - btcm.Last) / btcAlertValue
-						bchPercentChange := (bchAlertValue - bchm.Last) / bchAlertValue
-						if btcPercentChange >= 0.07 || btcPercentChange <= -0.08 {
-							btcAlertValue = btcm.Last
-							doBTC(chat)
-						}
-						if bchPercentChange >= 0.07 || bchPercentChange <= -0.08 {
-							bchAlertValue = bchm.Last
-							doBCC(chat)
-						}
+						if btcAlertValue > 0 && bchAlertValue > 0 {
 
+							btcPercentChange := (btcAlertValue - btcm.Last) / btcAlertValue
+							bchPercentChange := (bchAlertValue - bchm.Last) / bchAlertValue
+
+							if btcPercentChange >= 0.07 || btcPercentChange <= -0.08 {
+
+								msg := fmt.Sprintf("BTC价格跌幅 [%.2f]->[%.2f] [%.2f%%]", btcAlertValue, btcm.Last, btcPercentChange*100)
+								if btcPercentChange > 0 {
+									msg = fmt.Sprintf("BTC价格涨幅 [%.2f]->[%.2f] [%.2f%%]", btcAlertValue, btcm.Last, btcPercentChange*100)
+
+								}
+								bot.SendMessage(chat, msg, nil)
+								btcAlertValue = btcm.Last
+
+								doBTC(chat)
+							}
+							if bchPercentChange >= 0.07 || bchPercentChange <= -0.08 {
+
+								msg := fmt.Sprintf("BCH价格跌幅 [%.2f]->[%.2f] [%.2f%%]", bchAlertValue, bchm.Last, bchPercentChange*100)
+								if bchPercentChange > 0 {
+									msg = fmt.Sprintf("BCH价格涨幅 [%.2f]->[%.2f] [%.2f%%]", bchAlertValue, bchm.Last, bchPercentChange*100)
+
+								}
+								bot.SendMessage(chat, msg, nil)
+								bchAlertValue = bchm.Last
+								doBCC(chat)
+							}
+						} else {
+							bchAlertValue = bchm.Last
+							btcAlertValue = btcm.Last
+						}
 					} else {
 						if sub.Trader == BTC {
 							//fmt.Printf("alert btc price to  %d", sub.Chat.ID)
