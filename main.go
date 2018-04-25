@@ -376,6 +376,9 @@ func alert() {
 						} else {
 							bchAlertValue = bchm.Last
 							btcAlertValue = btcm.Last
+
+							msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", btcAlertValue, bchAlertValue)
+							bot.SendMessage(chat, msg, nil)
 						}
 					} else {
 						if sub.Trader == BTC {
@@ -493,8 +496,8 @@ func main() {
 			bchm := bitstamp("bchusd", BCC)
 			btcAlertValue = btcm.Last
 			bchAlertValue = bchm.Last
-
-			bot.SendMessage(message.Chat, "订阅BCH,BTC行情大波动提醒成功，七上八下模式开启", nil)
+			msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", btcAlertValue, bchAlertValue)
+			bot.SendMessage(message.Chat, msg, nil)
 		} else if arr[0] == "/dalertbtc" {
 			key := fmt.Sprintf("%s-%d", BTC, message.Chat.ID)
 
