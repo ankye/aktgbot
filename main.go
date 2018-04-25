@@ -449,12 +449,13 @@ func main() {
 
 	subscriptionFile = "config/subscription.gob"
 	loadSubscription(subscriptionFile)
-	go alert()
+
 	tempBot, err := tb.NewBot("429995834:AAH8T_JIn_tQ9fygYPCiOWppaLlO-buaEic")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	bot = tempBot
+	go alert()
 	messages := make(chan tb.Message, 100)
 
 	bot.Listen(messages, 10*time.Second)
