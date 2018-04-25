@@ -352,7 +352,7 @@ func alert() {
 							doBTC(chat)
 						}
 						if bchPercentChange >= 0.07 || bchPercentChange <= -0.08 {
-							bchAlertValue = btcm.Last
+							bchAlertValue = bchm.Last
 							doBCC(chat)
 						}
 
