@@ -465,7 +465,7 @@ func main() {
 	subscriptionFile = "config/subscription.gob"
 	loadSubscription(subscriptionFile)
 
-	tempBot, err := tb.NewBot(c.App.BotKey)
+	tempBot, err := tb.NewBot(c.App.Botkey)
 	if err != nil {
 		log.Error(err)
 	}

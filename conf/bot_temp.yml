@@ -1,4 +1,5 @@
-botkey: xxx
+app:
+  botkey: xxx
 
 
 log:

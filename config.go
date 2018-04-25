@@ -6,7 +6,7 @@ import (
 
 //AppConfig app基础配置
 type AppConfig struct {
-	BotKey string `yaml:"botkey"`
+	Botkey string `yaml:"botkey"`
 }
 
 //Config 配置信息表
