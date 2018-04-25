@@ -371,6 +371,7 @@ func alert() {
 									msg = fmt.Sprintf("BCH价格涨幅 [%.2f]->[%.2f] [%.2f%%]", bchAlertValue, bchm.Last, bchPercentChange*100)
 
 								}
+								log.Info(msg)
 								bot.SendMessage(chat, msg, nil)
 								bchAlertValue = bchm.Last
 								doBCC(chat)
@@ -380,6 +381,7 @@ func alert() {
 							btcAlertValue = btcm.Last
 
 							msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", btcAlertValue, bchAlertValue)
+							log.Info(msg)
 							bot.SendMessage(chat, msg, nil)
 						}
 					} else {
@@ -415,7 +417,9 @@ func doBTC(chat *tb.Chat) {
 	last4 := bitfinex("tBTCUSD", BTC)
 	last5 := Binance("BTCUSDT", BTC)
 	if HasNull(last1, last2, last3, last4, last5) {
-		bot.SendMessage(chat, "查询失败，请重试", nil)
+		msg := "查询失败，请重试"
+		log.Info(msg)
+		bot.SendMessage(chat, msg, nil)
 	} else {
 		min := Minimum(last1, last2, last3, last4, last5)
 		max := Maximum(last1, last2, last3, last4, last5)
@@ -423,6 +427,7 @@ func doBTC(chat *tb.Chat) {
 		per := agiotage / min.Last * 100
 		out := Output(last1, last2, last3, last4, last5)
 		msg := fmt.Sprintf("BTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
+		log.Info(msg)
 		bot.SendMessage(chat, msg, nil)
 	}
 }
@@ -435,7 +440,9 @@ func doBCC(chat *tb.Chat) {
 	last4 := bitstamp("bchusd", BCC)
 	last5 := Binance("BCCUSDT", BCC)
 	if HasNull(last1, last2, last3, last4, last5) {
-		bot.SendMessage(chat, "查询失败，请重试", nil)
+		msg := "查询失败，请重试"
+		log.Info(msg)
+		bot.SendMessage(chat, msg, nil)
 	} else {
 		min := Minimum(last1, last2, last3, last4, last5)
 		max := Maximum(last1, last2, last3, last4, last5)
@@ -443,6 +450,7 @@ func doBCC(chat *tb.Chat) {
 		per := agiotage / min.Last * 100
 		out := Output(last1, last2, last3, last4, last5)
 		msg := fmt.Sprintf("BCH \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
+		log.Info(msg)
 		bot.SendMessage(chat, msg, nil)
 	}
 }
@@ -488,7 +496,9 @@ func main() {
 			ns.Chat = chat
 			tgSubscription[key] = ns
 			saveSubscription()
-			bot.SendMessage(message.Chat, "订阅btc提醒成功,间隔1小时", nil)
+			msg := "订阅btc提醒成功,间隔1小时"
+			log.Info(msg)
+			bot.SendMessage(message.Chat, msg, nil)
 		} else if arr[0] == "/alertbch" {
 			key := fmt.Sprintf("%s-%d", BCC, message.Chat.ID)
 			str, _ := json.Marshal(message.Chat)
@@ -498,7 +508,11 @@ func main() {
 			ns.Chat = chat
 			tgSubscription[key] = ns
 			saveSubscription()
-			bot.SendMessage(message.Chat, "订阅bch提醒成功,间隔1小时", nil)
+
+			msg := "订阅bch提醒成功,间隔1小时"
+			log.Info(msg)
+			bot.SendMessage(message.Chat, msg, nil)
+
 		} else if arr[0] == "/alertrange78" {
 			key := fmt.Sprintf("%s%s-%d", BTC, BCC, message.Chat.ID)
 			str, _ := json.Marshal(message.Chat)
@@ -513,6 +527,7 @@ func main() {
 			btcAlertValue = btcm.Last
 			bchAlertValue = bchm.Last
 			msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", btcAlertValue, bchAlertValue)
+			log.Info(msg)
 			bot.SendMessage(message.Chat, msg, nil)
 		} else if arr[0] == "/dalertbtc" {
 			key := fmt.Sprintf("%s-%d", BTC, message.Chat.ID)
@@ -532,7 +547,9 @@ func main() {
 			saveSubscription()
 			bchAlertValue = 0
 			btcAlertValue = 0
-			bot.SendMessage(message.Chat, "取消订阅BCH,BTC行情大波动提醒成功，七上八下模式关闭", nil)
+			msg := "取消订阅BCH,BTC行情大波动提醒成功，七上八下模式关闭"
+			log.Info(msg)
+			bot.SendMessage(message.Chat, msg, nil)
 
 		} else if arr[0] == "/hi" {
 			bot.SendMessage(message.Chat, "Hello, "+message.Sender.FirstName+" ! \ndonated bch adress : 32LSbGXhDjUie578wGFPVUhK2M7boNcTsB", nil)
@@ -565,6 +582,7 @@ func main() {
 				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("LTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 
 		} else if arr[0] == "/eth" {
@@ -584,6 +602,7 @@ func main() {
 				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("ETH \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 
 		} else if arr[0] == "/bchbtc" {
@@ -605,6 +624,7 @@ func main() {
 				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("BCHBTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 
 		} else if arr[0] == "/ltcbtc" {
@@ -624,6 +644,7 @@ func main() {
 				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("LTCBTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 
 		} else if arr[0] == "/ethbtc" {
@@ -643,6 +664,7 @@ func main() {
 				out := Output(last1, last2, last3, last4, last5)
 				msg := fmt.Sprintf("ETHBTC \n%s\nmax: [%.2f] [%s]\nmin: [%.2f] [%s]\nagiotage:[%.2f][%.2f%%]", out, max.Last, max.Name, min.Last, min.Name, agiotage, per)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 
 		} else if arr[0] == "/bitstamp" {
@@ -659,6 +681,7 @@ func main() {
 				out := Output2(last, last2, last3, last4, last5, last6, last7)
 				msg := fmt.Sprintf("Bitstamp: \n%s", out)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 
 		} else if arr[0] == "/poloniex" {
@@ -670,6 +693,7 @@ func main() {
 
 				msg := fmt.Sprintf("Poloniex: \n%s\n", out)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 
 		} else if arr[0] == "/bittrex" {
@@ -687,6 +711,7 @@ func main() {
 				out := Output2(last1, last2, last3, last4, last5, last6, last7)
 				msg := fmt.Sprintf("Bittrex: \n%s\n", out)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 		} else if arr[0] == "/bitfinex" {
 
@@ -703,6 +728,7 @@ func main() {
 				out := Output2(last1, last2, last3, last4, last5, last6, last7)
 				msg := fmt.Sprintf("Bitfinex: \n%s\n", out)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 		} else if arr[0] == "/binance" {
 
@@ -719,6 +745,7 @@ func main() {
 				out := Output2(last1, last2, last3, last4, last5, last6, last7)
 				msg := fmt.Sprintf("Binance: \n%s\n", out)
 				bot.SendMessage(message.Chat, msg, nil)
+				log.Info(msg)
 			}
 		} else {
 			bot.SendMessage(message.Chat, "你等着，我等会找着了给你", nil)
