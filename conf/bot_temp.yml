@@ -1,0 +1,28 @@
+botkey: xxx
+
+
+log:
+  #console file multifile conn smtp
+  adapter: file
+  level: 7
+  file:
+    filename: logs/coinex.log
+    maxlines: 0
+    maxsize: 0
+    daily: true
+    maxdays: 7
+    rotate: true
+  multifile:
+    separate: logs/coinex.error.log
+  conn:
+    reconnectOnMsg: false
+    reconnect: false
+    #tcp unix udp
+    net: tcp
+    addr: 127.0.0.1:8000
+  smtp:
+    username: xxxx
+    password: xxxx
+    host: xxxx
+    sendTos: xxxx
+    subject: xxxx

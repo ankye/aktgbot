@@ -10,11 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gonethopper/libs/config"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/gjson"
 
 	tb "./telebot"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/gonethopper/libs/logs"
 )
 
 const (
@@ -447,12 +449,25 @@ func doBCC(chat *tb.Chat) {
 
 func main() {
 
+	c := NewConfig()
+
+	err := config.ParseConfig(c, "./conf/bot.yml")
+	if err != nil {
+		return
+	}
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	b, err := json.Marshal(&c.Log.File)
+	if err != nil {
+		return
+	}
+	log.SetLogger(c.Log.Adapter, string(b))
+
 	subscriptionFile = "config/subscription.gob"
 	loadSubscription(subscriptionFile)
 
-	tempBot, err := tb.NewBot("429995834:AAH8T_JIn_tQ9fygYPCiOWppaLlO-buaEic")
+	tempBot, err := tb.NewBot(c.App.BotKey)
 	if err != nil {
-		log.Fatalln(err)
+		log.Error(err)
 	}
 	bot = tempBot
 	go alert()
