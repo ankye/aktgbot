@@ -59,6 +59,8 @@ type Subscription struct {
 	Chat     *tb.Chat
 	Trader   string
 	Type     int
+	BCHPrice float64
+	BTCPrice float64
 	Duration int
 	LastTime int
 }
@@ -80,6 +82,8 @@ func NewSubscription(trader string, t int, duration int) *Subscription {
 		Trader:   trader,
 		Type:     t,
 		Duration: duration,
+		BTCPrice: 0,
+		BCHPrice: 0,
 		LastTime: LocalSecond(),
 	}
 }
@@ -303,8 +307,6 @@ func Binance(market string, trader string) *Market {
 var tgSubscription map[string]*Subscription
 var subscriptionFile string
 var bot *tb.Bot
-var bchAlertValue float64
-var btcAlertValue float64
 
 func saveSubscription() {
 
@@ -347,40 +349,42 @@ func alert() {
 					if sub.Type == 2 {
 						btcm := bitstamp("btcusd", BTC)
 						bchm := bitstamp("bchusd", BCC)
-						if btcAlertValue > 0 && bchAlertValue > 0 {
+						if sub.BTCPrice > 0 && sub.BCHPrice > 0 {
 
-							btcPercentChange := (btcAlertValue - btcm.Last) / btcAlertValue
-							bchPercentChange := (bchAlertValue - bchm.Last) / bchAlertValue
+							btcPercentChange := (btcm.Last - sub.BTCPrice) / btcm.Last
+							bchPercentChange := (bchm.Last - sub.BCHPrice) / bchm.Last
 
 							if btcPercentChange >= 0.07 || btcPercentChange <= -0.08 {
 
-								msg := fmt.Sprintf("BTC价格跌幅 [%.2f]->[%.2f] [%.2f%%]", btcAlertValue, btcm.Last, btcPercentChange*100)
+								msg := fmt.Sprintf("BTC价格跌幅 [%.2f]->[%.2f] [%.2f%%]", sub.BTCPrice, btcm.Last, btcPercentChange*100)
 								if btcPercentChange > 0 {
-									msg = fmt.Sprintf("BTC价格涨幅 [%.2f]->[%.2f] [%.2f%%]", btcAlertValue, btcm.Last, btcPercentChange*100)
+									msg = fmt.Sprintf("BTC价格涨幅 [%.2f]->[%.2f] [%.2f%%]", sub.BCHPrice, btcm.Last, btcPercentChange*100)
 
 								}
 								bot.SendMessage(chat, msg, nil)
-								btcAlertValue = btcm.Last
+								sub.BTCPrice = btcm.Last
+								saveSubscription()
 
 								doBTC(chat)
 							}
 							if bchPercentChange >= 0.07 || bchPercentChange <= -0.08 {
 
-								msg := fmt.Sprintf("BCH价格跌幅 [%.2f]->[%.2f] [%.2f%%]", bchAlertValue, bchm.Last, bchPercentChange*100)
+								msg := fmt.Sprintf("BCH价格跌幅 [%.2f]->[%.2f] [%.2f%%]", sub.BCHPrice, bchm.Last, bchPercentChange*100)
 								if bchPercentChange > 0 {
-									msg = fmt.Sprintf("BCH价格涨幅 [%.2f]->[%.2f] [%.2f%%]", bchAlertValue, bchm.Last, bchPercentChange*100)
+									msg = fmt.Sprintf("BCH价格涨幅 [%.2f]->[%.2f] [%.2f%%]", sub.BCHPrice, bchm.Last, bchPercentChange*100)
 
 								}
 								log.Info(msg)
 								bot.SendMessage(chat, msg, nil)
-								bchAlertValue = bchm.Last
+								sub.BCHPrice = bchm.Last
+								saveSubscription()
 								doBCC(chat)
 							}
 						} else {
-							bchAlertValue = bchm.Last
-							btcAlertValue = btcm.Last
-
-							msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", btcAlertValue, bchAlertValue)
+							sub.BCHPrice = bchm.Last
+							sub.BTCPrice = btcm.Last
+							saveSubscription()
+							msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", sub.BTCPrice, sub.BCHPrice)
 							log.Info(msg)
 							bot.SendMessage(chat, msg, nil)
 						}
@@ -521,12 +525,14 @@ func main() {
 			ns := NewSubscription(BCC, 2, 600)
 			ns.Chat = chat
 			tgSubscription[key] = ns
-			saveSubscription()
+
 			btcm := bitstamp("btcusd", BTC)
 			bchm := bitstamp("bchusd", BCC)
-			btcAlertValue = btcm.Last
-			bchAlertValue = bchm.Last
-			msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", btcAlertValue, bchAlertValue)
+			ns.BTCPrice = btcm.Last
+			ns.BCHPrice = bchm.Last
+			saveSubscription()
+
+			msg := fmt.Sprintf("订阅BCH,BTC行情大波动提醒成功，七上八下模式开启 BTC %.2f BCH %.2f", btcm.Last, bchm.Last)
 			log.Info(msg)
 			bot.SendMessage(message.Chat, msg, nil)
 		} else if arr[0] == "/dalertbtc" {
@@ -545,8 +551,7 @@ func main() {
 			key := fmt.Sprintf("%s%s-%d", BTC, BCC, message.Chat.ID)
 			delete(tgSubscription, key)
 			saveSubscription()
-			bchAlertValue = 0
-			btcAlertValue = 0
+
 			msg := "取消订阅BCH,BTC行情大波动提醒成功，七上八下模式关闭"
 			log.Info(msg)
 			bot.SendMessage(message.Chat, msg, nil)
