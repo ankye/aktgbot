@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/gonethopper/libs/config"
-	jsoniter "github.com/json-iterator/go"
+	"github.com/gonethopper/libs/utils"
 	"github.com/tidwall/gjson"
 
 	tb "./telebot"
@@ -349,6 +349,9 @@ func alert() {
 					if sub.Type == 2 {
 						btcm := bitstamp("btcusd", BTC)
 						bchm := bitstamp("bchusd", BCC)
+						if HasNull(bchm, bchm) {
+							continue
+						}
 						if sub.BTCPrice > 0 && sub.BCHPrice > 0 {
 
 							btcPercentChange := (btcm.Last - sub.BTCPrice) / btcm.Last
@@ -467,12 +470,13 @@ func main() {
 	if err != nil {
 		return
 	}
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	b, err := json.Marshal(&c.Log.File)
+
+	logConfig, err := utils.LoadLogConfig("./conf/log.yml")
 	if err != nil {
+		log.Error("load log config failed.", err)
 		return
 	}
-	log.SetLogger(c.Log.Adapter, string(b))
+	c.Log = logConfig
 
 	subscriptionFile = "config/subscription.gob"
 	loadSubscription(subscriptionFile)

@@ -11,15 +11,14 @@ type AppConfig struct {
 
 //Config 配置信息表
 type Config struct {
-	App *AppConfig     `yaml:"app"`
-	Log *log.LogConfig `yaml:"log"`
+	App *AppConfig `yaml:"app"`
+	Log *log.LogConfig
 }
 
 //NewConfig 创建配置文件
 func NewConfig() *Config {
 	c := new(Config)
 	c.App = new(AppConfig)
-	c.Log = log.NewLogConfig()
 
 	return c
 }

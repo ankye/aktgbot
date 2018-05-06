@@ -1,0 +1,25 @@
+#set log engine [console file multifile conn smtp]
+adapter: file
+#engine config
+params:
+  level: 7
+  ##file config:
+  filename: logs/bot.log
+  maxlines: 0
+  maxsize: 0
+  daily: true
+  maxdays: 7
+  rotate: true
+  ##multifile config:
+  #separate: ["emergency", "alert", "critical", "error", "warning", "notice", "info", "debug"]
+  ##conn config: net options [tcp unix udp]
+  #reconnectOnMsg: false
+  #reconnect: false
+  #net: tcp
+  #addr: 127.0.0.1:8000
+  ##smtp config:
+  #username: xxxx
+  #password: xxxx
+  #host: xxxx
+  #sendTos: xxxx
+  #subject: xxxx
