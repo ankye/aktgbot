@@ -349,7 +349,7 @@ func alert() {
 					if sub.Type == 2 {
 						btcm := bitstamp("btcusd", BTC)
 						bchm := bitstamp("bchusd", BCC)
-						if HasNull(bchm, bchm) {
+						if HasNull(bchm, btcm) {
 							continue
 						}
 						if sub.BTCPrice > 0 && sub.BCHPrice > 0 {
