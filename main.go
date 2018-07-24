@@ -234,7 +234,7 @@ func poloniex() *Account {
 }
 
 func bittrex(market string, trader string) *Market {
-	resp, err := http.Get("https://.com/api/v1.1/public/getmarketsummary?market=" + market)
+	resp, err := http.Get("https://bittrex.com/api/v1.1/public/getmarketsummary?market=" + market)
 	if err != nil {
 		// handle error
 		return nil
