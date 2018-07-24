@@ -442,7 +442,7 @@ func doBTC(chat *tb.Chat) {
 func doBCC(chat *tb.Chat) {
 	account := poloniex()
 	last1 := account.BCC
-	last2 := bittrex("USDT-BCC", BCC)
+	last2 := bittrex("USDT-BCH", BCC)
 	last3 := bitfinex("tBCHUSD", BCC)
 	last4 := bitstamp("bchusd", BCC)
 	last5 := Binance("BCCUSDT", BCC)
@@ -708,7 +708,7 @@ func main() {
 		} else if arr[0] == "/bittrex" {
 
 			last1 := bittrex("USDT-BTC", BTC)
-			last2 := bittrex("USDT-BCC", BCC)
+			last2 := bittrex("USDT-BCH", BCC)
 			last3 := bittrex("USDT-LTC", LTC)
 			last4 := bittrex("USDT-ETH", ETH)
 			last5 := bittrex("BTC-BCC", BTCBCC)
