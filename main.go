@@ -234,7 +234,7 @@ func poloniex() *Account {
 }
 
 func bittrex(market string, trader string) *Market {
-	resp, err := http.Get("https://bittrex.com/api/v1.1/public/getmarketsummary?market=" + market)
+	resp, err := http.Get("https://.com/api/v1.1/public/getmarketsummary?market=" + market)
 	if err != nil {
 		// handle error
 		return nil
@@ -618,7 +618,7 @@ func main() {
 
 			account := poloniex()
 			last1 := account.BTCBCC
-			last2 := bittrex("BTC-BCC", BTCBCC)
+			last2 := bittrex("BTC-BCH", BTCBCC)
 			last3 := bitfinex("tBCHBTC", BTCBCC)
 			last4 := bitstamp("bchbtc", BTCBCC)
 			last5 := Binance("BCCBTC", BTCBCC)
@@ -711,7 +711,7 @@ func main() {
 			last2 := bittrex("USDT-BCH", BCC)
 			last3 := bittrex("USDT-LTC", LTC)
 			last4 := bittrex("USDT-ETH", ETH)
-			last5 := bittrex("BTC-BCC", BTCBCC)
+			last5 := bittrex("BTC-BCH", BTCBCC)
 			last6 := bittrex("BTC-LTC", BTCLTC)
 			last7 := bittrex("BTC-ETH", BTCETH)
 			if HasNull(last1, last2, last3, last4, last5, last6, last7) {
