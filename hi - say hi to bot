@@ -6,11 +6,13 @@ eth - eth price
 bchbtc - bchbtc price
 ltcbtc - ltcbtc price
 ethbtc - ethbtc price
+coinex - show all coinex price
 bitstamp - show all bitstamp price
 poloniex - show all poloniex price
 bittrex - show all bittrex price
 bitfinex - show all bitfinex price
 binance - show all binance price
+coinex - show all coinex price
 alertrange78 - Subscription range78
 dalertrange78 - unSubscription range78
 
