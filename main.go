@@ -16,6 +16,7 @@ import (
 
 	tb "./telebot"
 
+	"github.com/gin-gonic/gin"
 	log "github.com/gonethopper/libs/logs"
 )
 
@@ -485,7 +486,29 @@ func doBCC(chat *tb.Chat) {
 		bot.SendMessage(chat, msg, nil)
 	}
 }
-
+func web() {
+	r := gin.Default()
+	r.GET("/coinex", func(c *gin.Context) {
+		text := ""
+		last1 := coinex("BTCUSDT", BTC)
+		last2 := coinex("BCHUSDT", BCC)
+		last3 := coinex("LTCUSDT", LTC)
+		last4 := coinex("ETHUSDT", ETH)
+		last5 := coinex("BTCBCH", BTCBCC)
+		last6 := coinex("LTCBTC", BTCLTC)
+		last7 := coinex("ETHBTC", BTCETH)
+		last8 := coinex("CETUSDT", "CETUSDT")
+		if HasNull(last1, last2, last3, last4, last5, last6, last7, last8) {
+			text = "查询失败，请重试"
+		} else {
+			out := Output2(last1, last2, last3, last4, last5, last6, last7, last8)
+			msg := fmt.Sprintf("Coinex: \n%s\n", out)
+			text = msg
+		}
+		c.String(http.StatusOK, text)
+	})
+	r.Run("0.0.0.0:9999") // listen and serve on 0.0.0.0:8080
+}
 func main() {
 
 	c := NewConfig()
@@ -514,7 +537,7 @@ func main() {
 	messages := make(chan tb.Message, 100)
 
 	bot.Listen(messages, 10*time.Second)
-
+	go web()
 	for message := range messages {
 		//log.Infof("%v", message)
 		arr := strings.Split(message.Text, "@")
