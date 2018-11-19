@@ -217,8 +217,12 @@ func bitfinex(market string, trader string) *Market {
 	if arr == nil {
 		return nil
 	}
-	last := arr[6].Float()
-	percent := arr[5].Float()
+	last := 0.0
+	percent := 0.0
+	if len(arr) > 6 {
+		last = arr[6].Float()
+		percent = arr[5].Float()
+	}
 	return NewMarket(BITFINEX, trader, last, percent)
 
 }
