@@ -20,12 +20,12 @@ import (
 
 const (
 	BTC    = "BTC"
-	BCC    = "BCH"
+	BCH    = "BCH"
 	LTC    = "LTC"
 	ETH    = "ETH"
-	BTCBCC = "BTCBCC"
-	BTCLTC = "BTCLTC"
-	BTCETH = "BTCETH"
+	BCHBTC = "BCHBTC"
+	LTCBTC = "LTCBTC"
+	ETHBTC = "ETHBTC"
 
 	BITSTAMP = "Bitstamp"
 	POLONIEX = "Poloniex"
@@ -46,12 +46,12 @@ type Market struct {
 //Account account info
 type Account struct {
 	BTC    *Market
-	BCC    *Market
+	BCH    *Market
 	LTC    *Market
 	ETH    *Market
-	BTCBCC *Market
-	BTCLTC *Market
-	BTCETH *Market
+	BCHBTC *Market
+	LTCBTC *Market
+	ETHBTC *Market
 }
 
 //Subscription 订阅通知
@@ -103,12 +103,12 @@ func NewMarket(name string, trader string, last float64, percentChange float64) 
 func NewAccount(name string) *Account {
 	return &Account{
 		BTC:    NewMarket(name, BTC, 0, 0),
-		BCC:    NewMarket(name, BCC, 0, 0),
+		BCH:    NewMarket(name, BCH, 0, 0),
 		LTC:    NewMarket(name, LTC, 0, 0),
 		ETH:    NewMarket(name, ETH, 0, 0),
-		BTCBCC: NewMarket(name, BTCBCC, 0, 0),
-		BTCLTC: NewMarket(name, BTCLTC, 0, 0),
-		BTCETH: NewMarket(name, BTCETH, 0, 0),
+		BCHBTC: NewMarket(name, BCHBTC, 0, 0),
+		LTCBTC: NewMarket(name, LTCBTC, 0, 0),
+		ETHBTC: NewMarket(name, ETHBTC, 0, 0),
 	}
 }
 
@@ -240,20 +240,20 @@ func poloniex() *Account {
 	}
 	account := NewAccount(POLONIEX)
 	account.BTC.Last = gjson.GetBytes(body, "USDT_BTC.last").Float()
-	account.BCC.Last = gjson.GetBytes(body, "USDT_BCHABC.last").Float()
+	account.BCH.Last = gjson.GetBytes(body, "USDT_BCHABC.last").Float()
 	account.LTC.Last = gjson.GetBytes(body, "USDT_LTC.last").Float()
 	account.ETH.Last = gjson.GetBytes(body, "USDT_ETH.last").Float()
-	account.BTCBCC.Last = gjson.GetBytes(body, "BTC_BCHABC.last").Float()
-	account.BTCLTC.Last = gjson.GetBytes(body, "BTC_LTC.last").Float()
-	account.BTCETH.Last = gjson.GetBytes(body, "BTC_ETH.last").Float()
+	account.BCHBTC.Last = gjson.GetBytes(body, "BTC_BCHABC.last").Float()
+	account.LTCBTC.Last = gjson.GetBytes(body, "BTC_LTC.last").Float()
+	account.ETHBTC.Last = gjson.GetBytes(body, "BTC_ETH.last").Float()
 
 	account.BTC.PercentChange = gjson.GetBytes(body, "USDT_BTC.percentChange").Float()
-	account.BCC.PercentChange = gjson.GetBytes(body, "USDT_BCHABC.percentChange").Float()
+	account.BCH.PercentChange = gjson.GetBytes(body, "USDT_BCHABC.percentChange").Float()
 	account.LTC.PercentChange = gjson.GetBytes(body, "USDT_LTC.percentChange").Float()
 	account.ETH.PercentChange = gjson.GetBytes(body, "USDT_ETH.percentChange").Float()
-	account.BTCBCC.PercentChange = gjson.GetBytes(body, "BTC_BCHABC.percentChange").Float()
-	account.BTCLTC.PercentChange = gjson.GetBytes(body, "BTC_LTC.percentChange").Float()
-	account.BTCETH.PercentChange = gjson.GetBytes(body, "BTC_ETH.percentChange").Float()
+	account.BCHBTC.PercentChange = gjson.GetBytes(body, "BTC_BCHABC.percentChange").Float()
+	account.LTCBTC.PercentChange = gjson.GetBytes(body, "BTC_LTC.percentChange").Float()
+	account.ETHBTC.PercentChange = gjson.GetBytes(body, "BTC_ETH.percentChange").Float()
 
 	return account
 }
@@ -373,7 +373,7 @@ func alert() {
 					_ = json.Unmarshal(str, chat)
 					if sub.Type == 2 {
 						btcm := bitstamp("btcusd", BTC)
-						bchm := bitstamp("bchusd", BCC)
+						bchm := bitstamp("bchusd", BCH)
 						if HasNull(bchm, btcm) {
 							continue
 						}
@@ -406,7 +406,7 @@ func alert() {
 								bot.SendMessage(chat, msg, nil)
 								sub.BCHPrice = bchm.Last
 								saveSubscription()
-								doBCC(chat)
+								doBCH(chat)
 							}
 						} else {
 							sub.BCHPrice = bchm.Last
@@ -420,9 +420,9 @@ func alert() {
 						if sub.Trader == BTC {
 							//fmt.Printf("alert btc price to  %d", sub.Chat.ID)
 							doBTC(chat)
-						} else if sub.Trader == BCC {
-							//fmt.Printf("alert bcc price to  %d", sub.Chat.ID)
-							doBCC(chat)
+						} else if sub.Trader == BCH {
+							//fmt.Printf("alert BCH price to  %d", sub.Chat.ID)
+							doBCH(chat)
 
 						}
 					}
@@ -465,14 +465,14 @@ func doBTC(chat *tb.Chat) {
 	}
 }
 
-func doBCC(chat *tb.Chat) {
+func doBCH(chat *tb.Chat) {
 	account := poloniex()
-	last1 := account.BCC
-	last2 := bittrex("USDT-BCH", BCC)
-	last3 := bitfinex("tBABUSD", BCC)
-	last4 := bitstamp("bchusd", BCC)
-	last5 := Binance("BCHABCUSDT", BCC)
-	last6 := coinex("BCHUSDT", BCC)
+	last1 := account.BCH
+	last2 := bittrex("USDT-BCH", BCH)
+	last3 := bitfinex("tBABUSD", BCH)
+	last4 := bitstamp("bchusd", BCH)
+	last5 := Binance("BCHABCUSDT", BCH)
+	last6 := coinex("BCHUSDT", BCH)
 	if HasNull(last1, last2, last3, last4, last5, last6) {
 		msg := "查询失败，请重试"
 		log.Info(msg)
@@ -493,12 +493,12 @@ func web() {
 	r.GET("/coinex", func(c *gin.Context) {
 		text := ""
 		last1 := coinex("BTCUSDT", BTC)
-		last2 := coinex("BCHUSDT", BCC)
+		last2 := coinex("BCHUSDT", BCH)
 		last3 := coinex("LTCUSDT", LTC)
 		last4 := coinex("ETHUSDT", ETH)
-		last5 := coinex("BTCBCH", BTCBCC)
-		last6 := coinex("LTCBTC", BTCLTC)
-		last7 := coinex("ETHBTC", BTCETH)
+		last5 := coinex("BTCBCH", BCHBTC)
+		last6 := coinex("LTCBTC", LTCBTC)
+		last7 := coinex("ETHBTC", ETHBTC)
 		last8 := coinex("CETUSDT", "CETUSDT")
 		if HasNull(last1, last2, last3, last4, last5, last6, last7, last8) {
 			text = "查询失败，请重试"
@@ -557,11 +557,11 @@ func main() {
 			log.Info(msg)
 			bot.SendMessage(message.Chat, msg, nil)
 		} else if arr[0] == "/alertbch" {
-			key := fmt.Sprintf("%s-%d", BCC, message.Chat.ID)
+			key := fmt.Sprintf("%s-%d", BCH, message.Chat.ID)
 			str, _ := json.Marshal(message.Chat)
 			chat := new(tb.Chat)
 			_ = json.Unmarshal(str, chat)
-			ns := NewSubscription(BCC, 1, 3600)
+			ns := NewSubscription(BCH, 1, 3600)
 			ns.Chat = chat
 			tgSubscription[key] = ns
 			saveSubscription()
@@ -571,16 +571,16 @@ func main() {
 			bot.SendMessage(message.Chat, msg, nil)
 
 		} else if arr[0] == "/alertrange78" {
-			key := fmt.Sprintf("%s%s-%d", BTC, BCC, message.Chat.ID)
+			key := fmt.Sprintf("%s%s-%d", BTC, BCH, message.Chat.ID)
 			str, _ := json.Marshal(message.Chat)
 			chat := new(tb.Chat)
 			_ = json.Unmarshal(str, chat)
-			ns := NewSubscription(BCC, 2, 600)
+			ns := NewSubscription(BCH, 2, 600)
 			ns.Chat = chat
 			tgSubscription[key] = ns
 
 			btcm := bitstamp("btcusd", BTC)
-			bchm := bitstamp("bchusd", BCC)
+			bchm := bitstamp("bchusd", BCH)
 			ns.BTCPrice = btcm.Last
 			ns.BCHPrice = bchm.Last
 			saveSubscription()
@@ -595,13 +595,13 @@ func main() {
 			saveSubscription()
 			bot.SendMessage(message.Chat, "取消订阅btc成功,不再提醒", nil)
 		} else if arr[0] == "/dalertbch" {
-			key := fmt.Sprintf("%s-%d", BCC, message.Chat.ID)
+			key := fmt.Sprintf("%s-%d", BCH, message.Chat.ID)
 			delete(tgSubscription, key)
 			saveSubscription()
 			bot.SendMessage(message.Chat, "取消订阅bch成功,不再提醒", nil)
 
 		} else if arr[0] == "/dalertrange78" {
-			key := fmt.Sprintf("%s%s-%d", BTC, BCC, message.Chat.ID)
+			key := fmt.Sprintf("%s%s-%d", BTC, BCH, message.Chat.ID)
 			delete(tgSubscription, key)
 			saveSubscription()
 
@@ -621,7 +621,7 @@ func main() {
 			str, _ := json.Marshal(message.Chat)
 			chat := new(tb.Chat)
 			_ = json.Unmarshal(str, chat)
-			doBCC(chat)
+			doBCH(chat)
 
 		} else if arr[0] == "/ltc" {
 			last1 := bitstamp("ltcusd", LTC)
@@ -668,11 +668,11 @@ func main() {
 		} else if arr[0] == "/bchbtc" {
 
 			account := poloniex()
-			last1 := account.BTCBCC
-			last2 := bittrex("BTC-BCH", BTCBCC)
-			last3 := bitfinex("tBABBTC", BTCBCC)
-			last4 := bitstamp("bchbtc", BTCBCC)
-			last5 := Binance("BCHABCBTC", BTCBCC)
+			last1 := account.BCHBTC
+			last2 := bittrex("BTC-BCH", BCHBTC)
+			last3 := bitfinex("tBABBTC", BCHBTC)
+			last4 := bitstamp("bchbtc", BCHBTC)
+			last5 := Binance("BCHABCBTC", BCHBTC)
 
 			if HasNull(last1, last2, last3, last4, last5) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
@@ -688,13 +688,13 @@ func main() {
 			}
 
 		} else if arr[0] == "/ltcbtc" {
-			last1 := bitstamp("ltcbtc", BTCLTC)
+			last1 := bitstamp("ltcbtc", LTCBTC)
 			account := poloniex()
-			last2 := account.BTCLTC
-			last3 := bittrex("BTC-LTC", BTCLTC)
-			last4 := bitfinex("tLTCBTC", BTCLTC)
-			last5 := Binance("LTCBTC", BTCLTC)
-			last6 := coinex("LTCBTC", BTCLTC)
+			last2 := account.LTCBTC
+			last3 := bittrex("BTC-LTC", LTCBTC)
+			last4 := bitfinex("tLTCBTC", LTCBTC)
+			last5 := Binance("LTCBTC", LTCBTC)
+			last6 := coinex("LTCBTC", LTCBTC)
 			if HasNull(last1, last2, last3, last4, last5, last6) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
@@ -709,13 +709,13 @@ func main() {
 			}
 
 		} else if arr[0] == "/ethbtc" {
-			last1 := bitstamp("ethbtc", BTCETH)
+			last1 := bitstamp("ethbtc", ETHBTC)
 			account := poloniex()
-			last2 := account.BTCETH
-			last3 := bittrex("BTC-ETH", BTCETH)
-			last4 := bitfinex("tETHBTC", BTCETH)
-			last5 := Binance("ETHBTC", BTCETH)
-			last6 := coinex("ETHBTC", BTCETH)
+			last2 := account.ETHBTC
+			last3 := bittrex("BTC-ETH", ETHBTC)
+			last4 := bitfinex("tETHBTC", ETHBTC)
+			last5 := Binance("ETHBTC", ETHBTC)
+			last6 := coinex("ETHBTC", ETHBTC)
 			if HasNull(last1, last2, last3, last4, last5, last6) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
@@ -733,10 +733,10 @@ func main() {
 			last := bitstamp("btcusd", BTC)
 			last2 := bitstamp("ltcusd", LTC)
 			last3 := bitstamp("ethusd", ETH)
-			last4 := bitstamp("ltcbtc", BTCLTC)
-			last5 := bitstamp("ethbtc", BTCETH)
-			last6 := bitstamp("bchusd", BCC)
-			last7 := bitstamp("bchbtc", BTCBCC)
+			last4 := bitstamp("ltcbtc", LTCBTC)
+			last5 := bitstamp("ethbtc", ETHBTC)
+			last6 := bitstamp("bchusd", BCH)
+			last7 := bitstamp("bchbtc", BCHBTC)
 			if HasNull(last, last2, last3, last4, last5, last6, last7) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
@@ -751,7 +751,7 @@ func main() {
 			if account == nil {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
-				out := Output2(account.BTC, account.BCC, account.LTC, account.ETH, account.BTCBCC, account.BTCLTC, account.BTCETH)
+				out := Output2(account.BTC, account.BCH, account.LTC, account.ETH, account.BCHBTC, account.LTCBTC, account.ETHBTC)
 
 				msg := fmt.Sprintf("Poloniex: \n%s\n", out)
 				bot.SendMessage(message.Chat, msg, nil)
@@ -761,12 +761,12 @@ func main() {
 		} else if arr[0] == "/bittrex" {
 
 			last1 := bittrex("USDT-BTC", BTC)
-			last2 := bittrex("USDT-BCH", BCC)
+			last2 := bittrex("USDT-BCH", BCH)
 			last3 := bittrex("USDT-LTC", LTC)
 			last4 := bittrex("USDT-ETH", ETH)
-			last5 := bittrex("BTC-BCH", BTCBCC)
-			last6 := bittrex("BTC-LTC", BTCLTC)
-			last7 := bittrex("BTC-ETH", BTCETH)
+			last5 := bittrex("BTC-BCH", BCHBTC)
+			last6 := bittrex("BTC-LTC", LTCBTC)
+			last7 := bittrex("BTC-ETH", ETHBTC)
 			if HasNull(last1, last2, last3, last4, last5, last6, last7) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
@@ -778,12 +778,12 @@ func main() {
 		} else if arr[0] == "/bitfinex" {
 
 			last1 := bitfinex("tBTCUSD", BTC)
-			last2 := bitfinex("tBABUSD", BCC)
+			last2 := bitfinex("tBABUSD", BCH)
 			last3 := bitfinex("tLTCUSD", LTC)
 			last4 := bitfinex("tETHUSD", ETH)
-			last5 := bitfinex("tBABBTC", BTCBCC)
-			last6 := bitfinex("tLTCBTC", BTCLTC)
-			last7 := bitfinex("tETHBTC", BTCETH)
+			last5 := bitfinex("tBABBTC", BCHBTC)
+			last6 := bitfinex("tLTCBTC", LTCBTC)
+			last7 := bitfinex("tETHBTC", ETHBTC)
 			if HasNull(last1, last2, last3, last4, last5, last6, last7) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
@@ -795,12 +795,12 @@ func main() {
 		} else if arr[0] == "/binance" {
 
 			last1 := Binance("BTCUSDT", BTC)
-			last2 := Binance("BCHABCUSDT", BCC)
+			last2 := Binance("BCHABCUSDT", BCH)
 			last3 := Binance("LTCUSDT", LTC)
 			last4 := Binance("ETHUSDT", ETH)
-			last5 := Binance("BCHABCBTC", BTCBCC)
-			last6 := Binance("LTCBTC", BTCLTC)
-			last7 := Binance("ETHBTC", BTCETH)
+			last5 := Binance("BCHABCBTC", BCHBTC)
+			last6 := Binance("LTCBTC", LTCBTC)
+			last7 := Binance("ETHBTC", ETHBTC)
 			if HasNull(last1, last2, last3, last4, last5, last6, last7) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
 			} else {
@@ -812,12 +812,12 @@ func main() {
 		} else if arr[0] == "/coinex" {
 
 			last1 := coinex("BTCUSDT", BTC)
-			last2 := coinex("BCHUSDT", BCC)
+			last2 := coinex("BCHUSDT", BCH)
 			last3 := coinex("LTCUSDT", LTC)
 			last4 := coinex("ETHUSDT", ETH)
-			last5 := coinex("BTCBCH", BTCBCC)
-			last6 := coinex("LTCBTC", BTCLTC)
-			last7 := coinex("ETHBTC", BTCETH)
+			last5 := coinex("BTCBCH", BCHBTC)
+			last6 := coinex("LTCBTC", LTCBTC)
+			last7 := coinex("ETHBTC", ETHBTC)
 			last8 := coinex("CETUSDT", "CETUSDT")
 			if HasNull(last1, last2, last3, last4, last5, last6, last7, last8) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
