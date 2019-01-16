@@ -541,7 +541,7 @@ func main() {
 	bot.Listen(messages, 10*time.Second)
 	go web()
 	for message := range messages {
-		log.Info("%v", message)
+		log.Info("%v", message.Text)
 		res := strings.Split(message.Text, "@")
 		if len(res) > 0 && len(res[0]) > 0 {
 			arr := strings.Split(res[0], " ")
