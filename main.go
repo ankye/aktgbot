@@ -10,14 +10,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gonethopper/libs/config"
+	log "github.com/gonethopper/libs/logs"
 	"github.com/gonethopper/libs/utils"
 	"github.com/tidwall/gjson"
-
-	tb "./telebot"
-
-	"github.com/gin-gonic/gin"
-	log "github.com/gonethopper/libs/logs"
+	tb "tg.robot/telebot"
 )
 
 const (
@@ -242,18 +240,18 @@ func poloniex() *Account {
 	}
 	account := NewAccount(POLONIEX)
 	account.BTC.Last = gjson.GetBytes(body, "USDT_BTC.last").Float()
-	account.BCC.Last = gjson.GetBytes(body, "USDT_BCH.last").Float()
+	account.BCC.Last = gjson.GetBytes(body, "USDT_BCHABC.last").Float()
 	account.LTC.Last = gjson.GetBytes(body, "USDT_LTC.last").Float()
 	account.ETH.Last = gjson.GetBytes(body, "USDT_ETH.last").Float()
-	account.BTCBCC.Last = gjson.GetBytes(body, "BTC_BCH.last").Float()
+	account.BTCBCC.Last = gjson.GetBytes(body, "BTC_BCHABC.last").Float()
 	account.BTCLTC.Last = gjson.GetBytes(body, "BTC_LTC.last").Float()
 	account.BTCETH.Last = gjson.GetBytes(body, "BTC_ETH.last").Float()
 
 	account.BTC.PercentChange = gjson.GetBytes(body, "USDT_BTC.percentChange").Float()
-	account.BCC.PercentChange = gjson.GetBytes(body, "USDT_BCH.percentChange").Float()
+	account.BCC.PercentChange = gjson.GetBytes(body, "USDT_BCHABC.percentChange").Float()
 	account.LTC.PercentChange = gjson.GetBytes(body, "USDT_LTC.percentChange").Float()
 	account.ETH.PercentChange = gjson.GetBytes(body, "USDT_ETH.percentChange").Float()
-	account.BTCBCC.PercentChange = gjson.GetBytes(body, "BTC_BCH.percentChange").Float()
+	account.BTCBCC.PercentChange = gjson.GetBytes(body, "BTC_BCHABC.percentChange").Float()
 	account.BTCLTC.PercentChange = gjson.GetBytes(body, "BTC_LTC.percentChange").Float()
 	account.BTCETH.PercentChange = gjson.GetBytes(body, "BTC_ETH.percentChange").Float()
 
@@ -471,9 +469,9 @@ func doBCC(chat *tb.Chat) {
 	account := poloniex()
 	last1 := account.BCC
 	last2 := bittrex("USDT-BCH", BCC)
-	last3 := bitfinex("tBCHUSD", BCC)
+	last3 := bitfinex("tBABUSD", BCC)
 	last4 := bitstamp("bchusd", BCC)
-	last5 := Binance("BCCUSDT", BCC)
+	last5 := Binance("BCHABCUSDT", BCC)
 	last6 := coinex("BCHUSDT", BCC)
 	if HasNull(last1, last2, last3, last4, last5, last6) {
 		msg := "查询失败，请重试"
@@ -543,7 +541,7 @@ func main() {
 	bot.Listen(messages, 10*time.Second)
 	go web()
 	for message := range messages {
-		//log.Infof("%v", message)
+		log.Info("%v", message)
 		arr := strings.Split(message.Text, "@")
 		if arr[0] == "/alertbtc" {
 			key := fmt.Sprintf("%s-%d", BTC, message.Chat.ID)
@@ -672,9 +670,9 @@ func main() {
 			account := poloniex()
 			last1 := account.BTCBCC
 			last2 := bittrex("BTC-BCH", BTCBCC)
-			last3 := bitfinex("tBCHBTC", BTCBCC)
+			last3 := bitfinex("tBABBTC", BTCBCC)
 			last4 := bitstamp("bchbtc", BTCBCC)
-			last5 := Binance("BCCBTC", BTCBCC)
+			last5 := Binance("BCHABCBTC", BTCBCC)
 
 			if HasNull(last1, last2, last3, last4, last5) {
 				bot.SendMessage(message.Chat, "查询失败，请重试", nil)
@@ -780,10 +778,10 @@ func main() {
 		} else if arr[0] == "/bitfinex" {
 
 			last1 := bitfinex("tBTCUSD", BTC)
-			last2 := bitfinex("tBCHUSD", BCC)
+			last2 := bitfinex("tBABUSD", BCC)
 			last3 := bitfinex("tLTCUSD", LTC)
 			last4 := bitfinex("tETHUSD", ETH)
-			last5 := bitfinex("tBCHBTC", BTCBCC)
+			last5 := bitfinex("tBABBTC", BTCBCC)
 			last6 := bitfinex("tLTCBTC", BTCLTC)
 			last7 := bitfinex("tETHBTC", BTCETH)
 			if HasNull(last1, last2, last3, last4, last5, last6, last7) {
@@ -797,10 +795,10 @@ func main() {
 		} else if arr[0] == "/binance" {
 
 			last1 := Binance("BTCUSDT", BTC)
-			last2 := Binance("BCCUSDT", BCC)
+			last2 := Binance("BCHABCUSDT", BCC)
 			last3 := Binance("LTCUSDT", LTC)
 			last4 := Binance("ETHUSDT", ETH)
-			last5 := Binance("BCCBTC", BTCBCC)
+			last5 := Binance("BCHABCBTC", BTCBCC)
 			last6 := Binance("LTCBTC", BTCLTC)
 			last7 := Binance("ETHBTC", BTCETH)
 			if HasNull(last1, last2, last3, last4, last5, last6, last7) {

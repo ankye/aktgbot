@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/armon/go-radix"
+	radix "github.com/armon/go-radix"
 	"github.com/pkg/errors"
 )
 
