@@ -240,7 +240,7 @@ func poloniex() *Account {
 	}
 	account := NewAccount(POLONIEX)
 	account.BTC.Last = gjson.GetBytes(body, "USDT_BTC.last").Float()
-	account.BCH.Last = gjson.GetBytes(body, "USDT_BCHABC.last").Float()
+	account.BCH.Last = gjson.GetBytes(body, "USDC_BCHABC.last").Float()
 	account.LTC.Last = gjson.GetBytes(body, "USDT_LTC.last").Float()
 	account.ETH.Last = gjson.GetBytes(body, "USDT_ETH.last").Float()
 	account.BCHBTC.Last = gjson.GetBytes(body, "BTC_BCHABC.last").Float()
@@ -248,7 +248,7 @@ func poloniex() *Account {
 	account.ETHBTC.Last = gjson.GetBytes(body, "BTC_ETH.last").Float()
 
 	account.BTC.PercentChange = gjson.GetBytes(body, "USDT_BTC.percentChange").Float()
-	account.BCH.PercentChange = gjson.GetBytes(body, "USDT_BCHABC.percentChange").Float()
+	account.BCH.PercentChange = gjson.GetBytes(body, "USDC_BCHABC.percentChange").Float()
 	account.LTC.PercentChange = gjson.GetBytes(body, "USDT_LTC.percentChange").Float()
 	account.ETH.PercentChange = gjson.GetBytes(body, "USDT_ETH.percentChange").Float()
 	account.BCHBTC.PercentChange = gjson.GetBytes(body, "BTC_BCHABC.percentChange").Float()
