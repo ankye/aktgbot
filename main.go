@@ -424,6 +424,8 @@ func alert() {
 							//fmt.Printf("alert BCH price to  %d", sub.Chat.ID)
 							doBCH(chat)
 
+						} else if sub.Trader == COINEX {
+							doCoinex(chat)
 						}
 					}
 				}
@@ -439,6 +441,24 @@ func alert() {
 			//	fmt.Printf("tick\n")
 			continue
 		}
+	}
+}
+func doCoinex(chat *tb.Chat) {
+	last1 := coinex("BTCUSDT", BTC)
+	last2 := coinex("BCHUSDT", BCH)
+	last3 := coinex("LTCUSDT", LTC)
+	last4 := coinex("ETHUSDT", ETH)
+	last5 := coinex("BCHBTC", BCHBTC)
+	last6 := coinex("LTCBTC", LTCBTC)
+	last7 := coinex("ETHBTC", ETHBTC)
+	last8 := coinex("CETUSDT", "CETUSDT")
+	if HasNull(last1, last2, last3, last4, last5, last6, last7, last8) {
+		bot.SendMessage(chat, "查询失败，请重试", nil)
+	} else {
+		out := Output2(last1, last2, last3, last4, last5, last6, last7, last8)
+		msg := fmt.Sprintf("Coinex: \n%s\n", out)
+		bot.SendMessage(chat, msg, nil)
+		log.Info(msg)
 	}
 }
 func doBTC(chat *tb.Chat) {
@@ -572,6 +592,20 @@ func main() {
 				log.Info(msg)
 				bot.SendMessage(message.Chat, msg, nil)
 
+			} else if arr[0] == "/alertcoinex" {
+				key := fmt.Sprintf("%s-%d", COINEX, message.Chat.ID)
+				str, _ := json.Marshal(message.Chat)
+				chat := new(tb.Chat)
+				_ = json.Unmarshal(str, chat)
+				ns := NewSubscription(COINEX, 1, 3600)
+				ns.Chat = chat
+				tgSubscription[key] = ns
+				saveSubscription()
+
+				msg := "订阅bch提醒成功,间隔1小时"
+				log.Info(msg)
+				bot.SendMessage(message.Chat, msg, nil)
+
 			} else if arr[0] == "/alertrange78" {
 				key := fmt.Sprintf("%s%s-%d", BTC, BCH, message.Chat.ID)
 				str, _ := json.Marshal(message.Chat)
@@ -598,6 +632,12 @@ func main() {
 				bot.SendMessage(message.Chat, "取消订阅btc成功,不再提醒", nil)
 			} else if arr[0] == "/dalertbch" {
 				key := fmt.Sprintf("%s-%d", BCH, message.Chat.ID)
+				delete(tgSubscription, key)
+				saveSubscription()
+				bot.SendMessage(message.Chat, "取消订阅bch成功,不再提醒", nil)
+
+			} else if arr[0] == "/dalertcoinex" {
+				key := fmt.Sprintf("%s-%d", COINEX, message.Chat.ID)
 				delete(tgSubscription, key)
 				saveSubscription()
 				bot.SendMessage(message.Chat, "取消订阅bch成功,不再提醒", nil)
@@ -823,23 +863,10 @@ func main() {
 						log.Info(msg)
 					}
 				} else {
-
-					last1 := coinex("BTCUSDT", BTC)
-					last2 := coinex("BCHUSDT", BCH)
-					last3 := coinex("LTCUSDT", LTC)
-					last4 := coinex("ETHUSDT", ETH)
-					last5 := coinex("BCHBTC", BCHBTC)
-					last6 := coinex("LTCBTC", LTCBTC)
-					last7 := coinex("ETHBTC", ETHBTC)
-					last8 := coinex("CETUSDT", "CETUSDT")
-					if HasNull(last1, last2, last3, last4, last5, last6, last7, last8) {
-						bot.SendMessage(message.Chat, "查询失败，请重试", nil)
-					} else {
-						out := Output2(last1, last2, last3, last4, last5, last6, last7, last8)
-						msg := fmt.Sprintf("Coinex: \n%s\n", out)
-						bot.SendMessage(message.Chat, msg, nil)
-						log.Info(msg)
-					}
+					str, _ := json.Marshal(message.Chat)
+					chat := new(tb.Chat)
+					_ = json.Unmarshal(str, chat)
+					doCoinex(chat)
 				}
 			} else {
 				bot.SendMessage(message.Chat, "你等着，我等会找着了给你", nil)
